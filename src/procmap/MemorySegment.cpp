@@ -1,5 +1,8 @@
 #include "procmap/MemorySegment.hpp"
-#include "procmap/Logger.hpp"
+
+#if _WIN32
+#define makedev(a, b) (dev_t)nullptr
+#endif
 
 namespace procmap {
 
@@ -10,11 +13,11 @@ MemorySegment::MemorySegment(char *line) {
   //printf("line: %s", line);
 
   // parse string
-  DIEIF(sscanf(line, "%lx-%lx %7s %lx %u:%u %lu %n%*[^\n]%n",
+  if(sscanf(line, "%lx-%lx %7s %lx %u:%u %lu %n%*[^\n]%n",
                      &addr_start, &addr_end, perms_str, &_offset,
                      &_deviceMajor, &_deviceMinor, &_inode,
-                     &name_start, &name_end) < 7,
-        "FAILED TO PARSE");
+                     &name_start, &name_end) < 7)
+    throw std::exception("Failed to parse segment");
 
   // convert addresses
   _startAddress = reinterpret_cast<void*>(addr_start);
@@ -78,23 +81,6 @@ bool MemorySegment::isShared() {
 
 bool MemorySegment::isPrivate() {
   return (_permissions & 16U) != 0;
-}
-
-void MemorySegment::print() {
-  char info[1024];
-  snprintf(info, sizeof(info),
-           "[%18p-%18p] (%5lu pages) [off=%7lu] [dev=%u:%u] [inode=%8lu] %c%c%c%c '%s'",
-           _startAddress, _endAddress,
-           length() / sysconf(_SC_PAGESIZE),
-           _offset,
-           _deviceMajor, _deviceMinor,
-           _inode,
-           (isPrivate() ?    'P' : 'S'),
-           (isExecutable() ? 'X' : '-'),
-           (isWriteable() ?  'W' : '-'),
-           (isReadable() ?   'R' : '-'),
-           _name.c_str());
-  L->printHorizontalRule(info, (isWriteable() ? 2 : 1));
 }
 
 bool MemorySegment::isBindable() {

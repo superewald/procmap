@@ -8,7 +8,6 @@ namespace procmap {
 class MemoryMap : private std::vector<MemorySegment> {
  public:
   MemoryMap();
-  void print();
 
   //allowed methods from std::vector
   using vector::operator[];

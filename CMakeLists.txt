@@ -9,9 +9,9 @@ set_property(TARGET procmap PROPERTY POSITION_INDEPENDENT_CODE on)
 
 target_compile_features(procmap PRIVATE cxx_std_14)
 
-target_compile_options(procmap PRIVATE -g -Wall -pedantic -Wfatal-errors)
+target_compile_options(procmap PRIVATE -Wall)
 if(NOT WIN32)
-	target_compile_options(procmap PRIVATE -Wshadow)
+	target_compile_options(procmap PRIVATE -g -Wshadow -pedantic -Wfatal-errors)
 endif()
 
 target_include_directories(procmap

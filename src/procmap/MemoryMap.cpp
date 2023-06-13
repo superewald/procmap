@@ -1,31 +1,24 @@
 #include "procmap/MemoryMap.hpp"
-#include "procmap/Logger.hpp"
+#include <string>
+#include <fstream>
 
 namespace procmap {
 
 MemoryMap::MemoryMap() {
-  char *line = NULL;
-  size_t line_size = 0;
+  std::string line;
 
   // open maps file
-  FILE *maps = fopen("/proc/self/maps", "r");
-  DIEIF(maps == nullptr, "error opening maps file");
+  std::ifstream maps("/proc/self/maps");
+  if(!maps.is_open())
+    throw std::exception("Error opening maps file");
 
   // parse the maps file
-  while (getline(&line, &line_size, maps) > 0) {
+  while (std::getline(maps, line)) {
     emplace_back(line);
   }
 
   // cleanup
-  free(line);
-  DIEIF(!feof(maps) || ferror(maps), "error parsing maps file");
-  DIEIF(fclose(maps), "error closing maps file");
-}
-
-void MemoryMap::print() {
-  for (auto &segment : *this) {
-    segment.print();
-  }
+  maps.close();
 }
 
 }  // namespace procmap

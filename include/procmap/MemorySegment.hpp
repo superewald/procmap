@@ -36,7 +36,6 @@ class MemorySegment {
   bool isAnonymous();
   bool isHeap();
   bool isStack();
-  void print();
 };
 
 }  // namespace procmap
