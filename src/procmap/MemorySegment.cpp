@@ -1,19 +1,22 @@
 #include "procmap/MemorySegment.hpp"
-
+#include <regex>
 #if _WIN32
 #define makedev(a, b) (dev_t)nullptr
 #endif
 
 namespace procmap {
 
-MemorySegment::MemorySegment(char *line) {
+MemorySegment::MemorySegment(std::string line) {
+    /*std::regex mapRegex("^([0-9A-Fa-f]+)-([0-9A-Fa-f]+) ([\w-]+) ([0-9A-Fa-f]+) (\d+\:\d+) (\d+)\s*(\S*)$");
+    auto matches = std::regex_search(line.begin(), line.end(), mapRegex);*/
+
   int name_start = 0, name_end = 0;
   unsigned long addr_start, addr_end;
   char perms_str[8];
   //printf("line: %s", line);
 
   // parse string
-  if(sscanf(line, "%lx-%lx %7s %lx %u:%u %lu %n%*[^\n]%n",
+  if(sscanf(line.c_str(), "%lx-%lx %7s %lx %u:%u %lu %n%*[^\n]%n",
                      &addr_start, &addr_end, perms_str, &_offset,
                      &_deviceMajor, &_deviceMinor, &_inode,
                      &name_start, &name_end) < 7)
@@ -38,8 +41,7 @@ MemorySegment::MemorySegment(char *line) {
 
   // copy name
   if (name_end > name_start) {
-    line[name_end] = '\0';
-    _name.assign(&line[name_start]);
+      _name.assign(line.substr(name_start, name_end - name_start));
   }
 }
 

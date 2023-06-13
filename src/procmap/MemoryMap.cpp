@@ -14,7 +14,7 @@ MemoryMap::MemoryMap() {
 
   // parse the maps file
   while (std::getline(maps, line)) {
-    emplace_back(line);
+    emplace_back(line.c_str());
   }
 
   // cleanup

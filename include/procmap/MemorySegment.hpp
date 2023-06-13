@@ -18,7 +18,7 @@ class MemorySegment {
 	std::string   _name;
 
  public:
-  MemorySegment(char *unparsed_line);
+  MemorySegment(std::string line);
   // getters
   void* startAddress();
   void* endAddress();
